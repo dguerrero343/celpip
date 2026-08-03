@@ -65,7 +65,11 @@ async def test_admin_gate_and_question_lifecycle(
 ) -> None:
     student_headers = _register_and_login(client, "student-admin-test@example.com")
     assert client.get("/admin/question-bank", headers=student_headers).status_code == 403
+    assert client.get("/admin/evaluation-consistency", headers=student_headers).status_code == 403
     admin_headers = await _admin_headers(client, db_session)
+    consistency = client.get("/admin/evaluation-consistency", headers=admin_headers)
+    assert consistency.status_code == 200
+    assert consistency.json()["metrics"] == []
 
     created = client.post("/admin/question-bank", headers=admin_headers, json=_valid_task())
     assert created.status_code == 201

@@ -71,7 +71,7 @@ export default function PracticeResultPage() {
       <header className="topbar result-topbar"><Brand /><nav><Link href="/account">My account</Link></nav></header>
       <div className="result-content">
         <section className="result-hero panel">
-          <div><p className="eyebrow">TASK {taskNumber} COMPLETE</p><h1>{config.title}</h1><p>{session.finishReason === "blank" ? "The timed session is locked. Start a new attempt when you are ready." : "Your response is locked and saved. Review the result, then use the recommendations in your next practice."}</p><div className="result-meta"><span>{words} words</span><span>{session.finishReason === "expired" ? "Submitted when time expired" : session.finishReason === "blank" ? "No response submitted" : "Submitted early"}</span></div></div>
+          <div><p className="eyebrow">{session.helpModeEnabled ? "GUIDED PRACTICE RESULT" : "TEST SIMULATION RESULT"}</p><h1>{config.title}</h1><p>{session.finishReason === "blank" ? "The timed session is locked. Start a new attempt when you are ready." : "Your response is locked and saved. Review the result, then use the recommendations in your next practice."}</p><div className="result-meta"><span>{words} words</span><span>{session.finishReason === "expired" ? "Submitted when time expired" : session.finishReason === "blank" ? "No response submitted" : "Submitted early"}</span></div></div>
           <div className="result-score"><strong>{evaluation?.estimated_score ?? "—"}</strong><span>{evaluation ? "estimated CELPIP score" : "not scored"}</span></div>
         </section>
 
@@ -94,6 +94,10 @@ export default function PracticeResultPage() {
               <article className="panel result-feedback"><p className="feedback-label success">What worked</p><ul>{evaluation.strengths.map((item) => <li key={item}>{item}</li>)}</ul></article>
               <article className="panel result-feedback"><p className="feedback-label improve">Improve next</p><ul>{evaluation.weaknesses.map((item) => <li key={item}>{item}</li>)}</ul></article>
             </section>
+            {evaluation.next_objective?.objective && <section className="learning-objective panel">
+              <div><p className="eyebrow">ONE GOAL FOR YOUR NEXT {session.helpModeEnabled ? "GUIDED PRACTICE" : "TEST SIMULATION"}</p><h2>{evaluation.next_objective.objective}</h2><p>{evaluation.next_objective.success_criteria}</p></div>
+              {evaluation.previous_objective_assessment?.status && evaluation.previous_objective_assessment.status !== "NOT_APPLICABLE" && <aside><strong>{evaluation.previous_objective_assessment.status.replaceAll("_", " ")}</strong><span>{evaluation.previous_objective_assessment.explanation}</span></aside>}
+            </section>}
             <section className="result-detail-grid">
               <article className="panel result-corrections"><p className="eyebrow">SUGGESTED CORRECTIONS</p><h2>Make the language stronger</h2>{evaluation.corrections.map((item) => <div key={`${item.original}-${item.revised}`}><del>{item.original}</del><p>{item.revised}</p></div>)}</article>
               <article className="panel result-next"><p className="eyebrow">NEXT PRACTICE</p><h2>Recommended exercises</h2><ol>{evaluation.recommended_exercises.map((item) => <li key={item}>{item}</li>)}</ol></article>

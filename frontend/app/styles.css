@@ -158,6 +158,11 @@ blockquote { max-height: 142px; overflow: auto; margin: 22px 0; padding: 18px 20
 .account-welcome > div > p:last-child { margin-bottom: 0; color: #66756f; }
 .account-welcome .button.primary { flex: 0 0 auto; background: #1e6b51; color: white; }
 .account-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 28px 0 54px; }
+.mode-progress { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin: -30px 0 54px; }
+.mode-progress article { padding: 20px 22px; display: grid; grid-template-columns: 1fr auto; gap: 4px 18px; }
+.mode-progress span { color: #607169; font-size: .75rem; font-weight: 800; }
+.mode-progress strong { grid-row: 1 / 3; grid-column: 2; color: #21684e; font-size: 2rem; }
+.mode-progress small { color: #89958f; }
 .account-metric { min-height: 136px; padding: 22px; display: grid; grid-template-columns: 1fr auto; align-content: center; }
 .account-metric span { color: #718079; font-size: .75rem; font-weight: 750; }
 .account-metric strong { grid-row: 1 / 3; grid-column: 2; color: #1f684d; font-size: 2.3rem; letter-spacing: -.05em; }
@@ -334,9 +339,25 @@ blockquote { max-height: 142px; overflow: auto; margin: 22px 0; padding: 18px 20
 .intro-instructions strong { display: block; margin-bottom: 8px; color: #275f49; }
 .intro-instructions p { margin: 0; color: #61716a; line-height: 1.6; }
 .intro-wait { margin: 22px 0 0; color: #7d8984; font-size: .8rem; font-weight: 700; }
+.help-mode-choice { max-width: 650px; margin: 22px auto 0; padding: 20px; display: flex; align-items: center; gap: 24px; border: 2px solid #d8e3dc; border-radius: 14px; background: white; text-align: left; }
+.help-mode-choice.selected { border-color: #3a8566; background: #f1f8f4; }
+.help-mode-choice h2 { margin: 2px 0 7px; font-size: 1.25rem; }
+.help-mode-choice p { margin: 0; color: #607169; font-size: .82rem; line-height: 1.5; }
+.help-toggle { margin-left: auto; display: grid; grid-template-columns: auto auto; align-items: center; gap: 8px; cursor: pointer; }
+.help-toggle input { position: absolute; opacity: 0; }
+.help-toggle span { width: 48px; height: 26px; padding: 3px; border-radius: 20px; background: #aeb9b3; transition: background .2s; }
+.help-toggle span::after { content: ""; display: block; width: 20px; height: 20px; border-radius: 50%; background: white; transition: transform .2s; }
+.help-toggle input:checked + span { background: #267457; }
+.help-toggle input:checked + span::after { transform: translateX(22px); }
+.help-toggle input:focus-visible + span { outline: 3px solid #e0b84f; outline-offset: 3px; }
+.help-toggle b { min-width: 24px; color: #446056; font-size: .72rem; }
+.mode-confirmation { margin-top: 12px !important; font-size: .76rem; }
 
 .exam-workspace { min-height: 100vh; background: #eef2ef; }
-.exam-toolbar { height: 76px; padding: 0 28px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; border-bottom: 1px solid #d4ded8; background: white; position: sticky; top: 0; z-index: 5; }
+.exam-toolbar { height: 76px; padding: 0 28px; display: grid; grid-template-columns: 1fr auto auto 1fr; gap: 18px; align-items: center; border-bottom: 1px solid #d4ded8; background: white; position: sticky; top: 0; z-index: 5; }
+.attempt-badge { padding: 7px 10px; border-radius: 999px; font-size: .66rem; font-weight: 850; white-space: nowrap; }
+.attempt-badge.guided { background: #ddf1e5; color: #21674d; }
+.attempt-badge.simulation { background: #e9edf3; color: #40546e; }
 .exam-task-label { display: grid; text-align: center; }
 .exam-task-label span, .exam-timer span { color: #78847f; font-size: .66rem; font-weight: 750; text-transform: uppercase; letter-spacing: .07em; }
 .exam-task-label strong { margin-top: 3px; font-size: .9rem; }
@@ -345,6 +366,7 @@ blockquote { max-height: 142px; overflow: auto; margin: 22px 0; padding: 18px 20
 .exam-timer.timer-warning { border-color: #e2b799; background: #fff6ef; }
 .exam-timer.timer-warning strong { color: #a64e24; }
 .exam-body { min-height: calc(100vh - 76px); display: grid; grid-template-columns: minmax(300px, .8fr) minmax(480px, 1.2fr); }
+.exam-body.with-help { grid-template-columns: minmax(270px, .7fr) minmax(430px, 1.1fr) minmax(290px, .65fr); }
 .exam-prompt { padding: clamp(28px, 4vw, 52px); border-right: 1px solid #d4ded8; background: #f9faf9; }
 .prompt-heading { padding-bottom: 26px; border-bottom: 1px solid #dce3df; }
 .prompt-heading h1 { margin-bottom: 12px; font-size: clamp(2rem, 4vw, 3.25rem); }
@@ -372,6 +394,24 @@ blockquote { max-height: 142px; overflow: auto; margin: 22px 0; padding: 18px 20
 .lock-overlay h2 { margin: 18px 0 8px; }
 .lock-overlay p { max-width: 460px; color: #697770; }
 .exam-status { position: fixed; right: 20px; bottom: 20px; z-index: 10; max-width: 400px; padding: 14px 17px; border-radius: 10px; background: #7f3028; color: white; font-size: .8rem; }
+.help-panel { min-width: 0; border-left: 1px solid #d4ded8; background: #f5f8f6; }
+.help-panel-toggle { width: 100%; min-height: 48px; border: 0; border-bottom: 1px solid #d5e0d9; background: #246a50; color: white; font-weight: 850; cursor: pointer; }
+.help-panel-content { display: none; max-height: calc(100vh - 124px); overflow: auto; }
+.help-panel.open .help-panel-content { display: block; }
+.help-panel-heading { padding: 22px 18px; }
+.help-panel-heading h2 { margin: 4px 0 8px; }
+.help-panel-heading > p:last-child { color: #65756e; font-size: .76rem; line-height: 1.5; }
+.help-panel-heading > span { display: inline-block; padding: 4px 7px; border-radius: 6px; background: #fff0d0; color: #805a18; font-size: .62rem; font-weight: 800; }
+.help-error { margin: 0 18px 18px; padding: 12px; border-radius: 8px; background: #fff2e8; color: #834b2a; font-size: .76rem; }
+.help-section { border-top: 1px solid #dbe4de; }
+.help-section > button { width: 100%; padding: 15px 18px; display: flex; justify-content: space-between; gap: 12px; border: 0; background: transparent; color: #294a3e; text-align: left; font: inherit; font-size: .78rem; font-weight: 850; cursor: pointer; }
+.help-section > div { padding: 0 18px 18px; display: grid; gap: 12px; }
+.help-section article { padding: 11px; border-radius: 8px; background: white; }
+.help-section article p { margin: 4px 0 0; color: #586b63; font-size: .75rem; line-height: 1.5; }
+.help-section article small { color: #35755d; font-weight: 800; }
+.help-section label { display: flex; align-items: start; gap: 9px; color: #4f625a; font-size: .76rem; line-height: 1.45; }
+.vocab-item { margin-top: 10px; padding-top: 10px; border-top: 1px solid #e5ebe7; }
+.vocab-item em, .vocab-item small { display: block; margin-top: 5px; color: #6c7a74; font-size: .7rem; line-height: 1.4; }
 
 .result-shell { min-height: 100vh; padding-bottom: 70px; background: #f3f6f3; }
 .result-topbar .brand { margin-right: auto; }
@@ -401,6 +441,12 @@ blockquote { max-height: 142px; overflow: auto; margin: 22px 0; padding: 18px 20
 .result-feedback ul, .result-next ol { margin: 0; padding-left: 20px; color: #566860; line-height: 1.65; }
 .result-feedback li + li, .result-next li + li { margin-top: 8px; }
 .result-corrections h2, .result-next h2 { margin-bottom: 22px; }
+.learning-objective { margin: 20px 0; padding: 28px; display: flex; align-items: center; justify-content: space-between; gap: 28px; border-color: #bdd8ca; background: linear-gradient(120deg, #edf7f1, #fff); }
+.learning-objective h2 { margin: 6px 0 8px; color: #173f33; font-size: clamp(1.15rem, 2vw, 1.55rem); }
+.learning-objective p:last-child { margin: 0; color: #5f7069; line-height: 1.55; }
+.learning-objective aside { max-width: 340px; padding-left: 22px; display: grid; gap: 6px; border-left: 1px solid #c7dbd0; }
+.learning-objective aside strong { color: #1f6b50; font-size: .72rem; letter-spacing: .05em; }
+.learning-objective aside span { color: #64746d; font-size: .78rem; line-height: 1.5; }
 .result-corrections > div { padding: 16px 0; border-top: 1px solid #e4e9e6; }
 .result-corrections del { color: #9c6861; }
 .result-corrections > div p { margin: 8px 0 0; color: #226a4e; font-weight: 650; }
@@ -438,6 +484,7 @@ blockquote { max-height: 142px; overflow: auto; margin: 22px 0; padding: 18px 20
   .auth-benefits, .auth-privacy { display: none; }
   .auth-form-side { min-height: auto; padding: 44px 28px 60px; }
   .account-metrics { grid-template-columns: repeat(2, 1fr); }
+  .mode-progress { grid-template-columns: repeat(2, 1fr); }
   .account-task-grid { grid-template-columns: repeat(2, 1fr); }
   .usage-heading { align-items: start; flex-direction: column; }
   .usage-metrics { grid-template-columns: repeat(2, 1fr); }
@@ -446,8 +493,13 @@ blockquote { max-height: 142px; overflow: auto; margin: 22px 0; padding: 18px 20
   .admin-workspace { grid-template-columns: 1fr; }
   .admin-side { grid-template-columns: repeat(2, 1fr); }
   .exam-body { grid-template-columns: 1fr; }
+  .exam-body.with-help { grid-template-columns: 1fr; }
+  .help-panel { border-left: 0; border-top: 1px solid #d4ded8; }
+  .help-panel-content { max-height: none; }
   .exam-prompt { border-right: 0; border-bottom: 1px solid #d4ded8; }
   .result-feedback-grid, .result-detail-grid { grid-template-columns: 1fr; }
+  .learning-objective { align-items: start; flex-direction: column; }
+  .learning-objective aside { max-width: none; padding: 18px 0 0; border-left: 0; border-top: 1px solid #c7dbd0; }
   .score-breakdown { grid-template-columns: repeat(2, 1fr); }
 }
 
@@ -478,6 +530,7 @@ blockquote { max-height: 142px; overflow: auto; margin: 22px 0; padding: 18px 20
   .account-welcome { align-items: start; flex-direction: column; }
   .account-welcome .button { width: 100%; text-align: center; }
   .account-metrics { grid-template-columns: 1fr; gap: 10px; margin-bottom: 40px; }
+  .mode-progress { grid-template-columns: 1fr; margin-top: -18px; }
   .account-task-grid { grid-template-columns: 1fr; }
   .account-nav a { display: none; }
   .usage-callout { align-items: start; flex-direction: column; }
@@ -510,6 +563,7 @@ blockquote { max-height: 142px; overflow: auto; margin: 22px 0; padding: 18px 20
   .exam-toolbar .brand span:last-child { display: none; }
   .exam-task-label { text-align: left; }
   .exam-task-label span { display: none; }
+  .attempt-badge { position: fixed; left: 12px; bottom: 12px; z-index: 6; box-shadow: 0 3px 12px rgba(20,50,39,.18); }
   .exam-timer { min-width: 105px; padding: 7px 9px; }
   .exam-timer strong { font-size: 1.05rem; }
   .exam-body { min-height: calc(100vh - 70px); }

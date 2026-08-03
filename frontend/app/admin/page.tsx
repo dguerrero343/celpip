@@ -52,6 +52,18 @@ type Usage = {
   provider: { billed_cost_usd: number | null; status: string };
 };
 
+type Consistency = {
+  metrics: Array<{
+    prompt_version: string;
+    attempt_type: "GUIDED_PRACTICE" | "TEST_SIMULATION";
+    evaluation_count: number;
+    average_score: number;
+    score_standard_deviation: number;
+    average_change_from_prior: number | null;
+  }>;
+  guidance: string;
+};
+
 type Editor = {
   task_type: TaskType;
   category: string;
@@ -106,6 +118,7 @@ export default function AdminPage() {
   const [summary, setSummary] = useState<Summary | null>(null);
   const [tasks, setTasks] = useState<BankTask[]>([]);
   const [usage, setUsage] = useState<Usage | null>(null);
+  const [consistency, setConsistency] = useState<Consistency | null>(null);
   const [statusFilter, setStatusFilter] = useState<TaskStatus | "">("");
   const [typeFilter, setTypeFilter] = useState<TaskType | "">("");
   const [search, setSearch] = useState("");
@@ -144,18 +157,20 @@ export default function AdminPage() {
     const end = new Date();
     const start = new Date(end);
     start.setDate(end.getDate() - 29);
-    const [summaryResponse, bankResponse, usageResponse] = await Promise.all([
+    const [summaryResponse, bankResponse, usageResponse, consistencyResponse] = await Promise.all([
       fetch("/api/admin/question-bank/summary", { credentials: "include", cache: "no-store" }),
       fetch(`/api/admin/question-bank${query ? `?${query}` : ""}`, { credentials: "include", cache: "no-store" }),
       fetch(`/api/usage/report?start_date=${isoDate(start)}&end_date=${isoDate(end)}`, { credentials: "include", cache: "no-store" }),
+      fetch("/api/admin/evaluation-consistency", { credentials: "include", cache: "no-store" }),
     ]);
-    if (!summaryResponse.ok || !bankResponse.ok || !usageResponse.ok) {
+    if (!summaryResponse.ok || !bankResponse.ok || !usageResponse.ok || !consistencyResponse.ok) {
       throw new Error("We could not load the administration workspace.");
     }
     const bank = await bankResponse.json() as { items: BankTask[] };
     setSummary(await summaryResponse.json());
     setTasks(bank.items);
     setUsage(await usageResponse.json());
+    setConsistency(await consistencyResponse.json());
     setLoading(false);
   }, [query, router]);
 
@@ -302,6 +317,7 @@ export default function AdminPage() {
             </form>
 
             <aside className="admin-side">
+              <article className="panel admin-policy"><p className="eyebrow">EVALUATOR STABILITY</p><h2>Prompt versions are measured</h2>{consistency?.metrics.length ? <ul>{consistency.metrics.map((metric) => <li key={`${metric.prompt_version}-${metric.attempt_type}`}><strong>{metric.prompt_version}</strong> · {metric.attempt_type === "TEST_SIMULATION" ? "Test" : "Guided"}: {metric.evaluation_count} evaluations, {metric.score_standard_deviation.toFixed(2)} score spread</li>)}</ul> : <p>No versioned evaluations yet.</p>}<small>{consistency?.guidance}</small></article>
               <article className="panel admin-policy"><p className="eyebrow">PUBLICATION RULE</p><h2>Human approval required</h2><p>Only approved exercises are assignable. Editing an approved prompt automatically returns it to review.</p></article>
               <article className="panel admin-generator"><p className="eyebrow">OPTIONAL AI DRAFTS</p><h2>Replenish the bank</h2><p>Generate original drafts. Nothing is published until an administrator reviews and approves it.</p><label><span>Task</span><select value={generateType} onChange={(event) => setGenerateType(event.target.value as TaskType)}><option value="EMAIL">Task 1</option><option value="SURVEY">Task 2</option></select></label><label><span>Drafts</span><input type="number" min="1" max="5" value={generateCount} onChange={(event) => setGenerateCount(Number(event.target.value))} /></label><button type="button" onClick={() => void generateDrafts()} disabled={generating}>{generating ? "Generating…" : "Generate drafts"}</button></article>
               <Link className="panel admin-usage-link" href="/usage"><span>AI usage and billing</span><strong>{number(usage.totals.request_count)} calls</strong><small>Open full reconciliation →</small></Link>

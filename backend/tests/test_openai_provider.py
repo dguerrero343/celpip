@@ -101,6 +101,13 @@ async def test_openai_provider_uses_structured_response_and_tracks_cached_cost()
         grammar=7,
         strengths=["Clear purpose"],
         weaknesses=["Article usage"],
+        weakness_signals=[
+            {
+                "skill": "grammar",
+                "issue_key": "article_usage",
+                "label": "Article usage",
+            }
+        ],
         corrections=[
             WritingCorrection(
                 original="I request flexible schedule",
@@ -109,6 +116,15 @@ async def test_openai_provider_uses_structured_response_and_tracks_cached_cost()
             )
         ],
         recommended_next_steps=["Review article use"],
+        next_objective={
+            "skill": "grammar",
+            "objective": "Use an article before every singular count noun.",
+            "success_criteria": "Make no more than one article error next time.",
+        },
+        previous_objective_assessment={
+            "status": "NOT_APPLICABLE",
+            "explanation": "There was no previous objective to assess.",
+        },
     )
     response = SimpleNamespace(
         id="resp_123",
@@ -166,6 +182,13 @@ async def test_provider_recovers_valid_output_when_sdk_response_validation_fails
         "grammar": 7,
         "strengths": ["Clear purpose"],
         "weaknesses": ["Article usage"],
+        "weakness_signals": [
+            {
+                "skill": "grammar",
+                "issue_key": "article_usage",
+                "label": "Article usage",
+            }
+        ],
         "corrections": [
             {
                 "original": "I request flexible schedule",
@@ -174,6 +197,15 @@ async def test_provider_recovers_valid_output_when_sdk_response_validation_fails
             }
         ],
         "recommended_next_steps": ["Review article use"],
+        "next_objective": {
+            "skill": "grammar",
+            "objective": "Use an article before every singular count noun.",
+            "success_criteria": "Make no more than one article error next time.",
+        },
+        "previous_objective_assessment": {
+            "status": "NOT_APPLICABLE",
+            "explanation": "There was no previous objective to assess.",
+        },
     }
     payload = {
         "id": "resp_recovered",
@@ -257,14 +289,14 @@ def test_prompt_optimizer_deduplicates_and_caps_history() -> None:
         target_score=9,
         weaknesses=("Grammar", " grammar ", "Vocabulary", "Organization"),
         model="gpt-5-mini",
-        max_input_tokens=4000,
+        max_input_tokens=6000,
         max_history_items=2,
     )
 
     payload = json.loads(prompt.user_message.removeprefix("Evaluate this JSON payload:\n"))
-    assert payload["student_context"]["recent_weaknesses"] == ["Grammar", "Vocabulary"]
+    assert payload["student_context"]["persistent_weaknesses"] == ["Grammar", "Vocabulary"]
     assert prompt.included_history_items == 2
-    assert prompt.estimated_input_tokens <= 4000
+    assert prompt.estimated_input_tokens <= 6000
 
 
 def test_prompt_optimizer_omits_all_history_when_limit_is_zero() -> None:
@@ -275,12 +307,12 @@ def test_prompt_optimizer_omits_all_history_when_limit_is_zero() -> None:
         target_score=9,
         weaknesses=("Grammar", "Vocabulary"),
         model="gpt-5-mini",
-        max_input_tokens=4000,
+        max_input_tokens=6000,
         max_history_items=0,
     )
 
     payload = json.loads(prompt.user_message.removeprefix("Evaluate this JSON payload:\n"))
-    assert payload["student_context"]["recent_weaknesses"] == []
+    assert payload["student_context"]["persistent_weaknesses"] == []
     assert prompt.included_history_items == 0
 
 

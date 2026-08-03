@@ -11,6 +11,7 @@ class EvaluationInput:
     target_score: float
     weaknesses: tuple[str, ...]
     safety_identifier: str | None = None
+    previous_objective: dict[str, str] | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -29,6 +30,10 @@ class EvaluationOutput:
     input_tokens: int
     output_tokens: int
     estimated_cost: Decimal
+    weakness_signals: tuple[dict[str, str], ...] = ()
+    next_objective: dict[str, str] | None = None
+    previous_objective_assessment: dict[str, str] | None = None
+    evaluator_prompt_version: str = "legacy"
 
 
 class AIProvider(Protocol):

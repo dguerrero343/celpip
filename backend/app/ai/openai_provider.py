@@ -7,7 +7,7 @@ from pydantic import ValidationError as PydanticValidationError
 
 from app.ai.ai_provider import EvaluationInput, EvaluationOutput
 from app.ai.openai_schema import StructuredWritingEvaluation
-from app.ai.token_budget import build_optimized_prompt
+from app.ai.token_budget import EVALUATOR_PROMPT_VERSION, build_optimized_prompt
 
 logger = logging.getLogger(__name__)
 ONE_MILLION = Decimal("1000000")
@@ -99,9 +99,7 @@ class OpenAIWritingProvider:
     async def close(self) -> None:
         await self._client.close()
 
-    def _estimated_cost(
-        self, input_tokens: int, output_tokens: int, cached_tokens: int
-    ) -> Decimal:
+    def _estimated_cost(self, input_tokens: int, output_tokens: int, cached_tokens: int) -> Decimal:
         cached_tokens = min(max(cached_tokens, 0), input_tokens)
         uncached_tokens = input_tokens - cached_tokens
         cost = (
@@ -121,6 +119,7 @@ class OpenAIWritingProvider:
             model=self.model,
             max_input_tokens=self.max_input_tokens,
             max_history_items=self.max_history_items,
+            previous_objective=request.previous_objective,
         )
         parameters: dict[str, Any] = {
             "model": self.model,
@@ -180,9 +179,7 @@ class OpenAIWritingProvider:
                 except PydanticValidationError as validation_error:
                     issues = ",".join(
                         f"{'.'.join(str(part) for part in issue['loc'])}:{issue['type']}"
-                        for issue in validation_error.errors(
-                            include_input=False, include_url=False
-                        )
+                        for issue in validation_error.errors(include_input=False, include_url=False)
                     )
                     logger.warning("OpenAI evaluation schema mismatch issues=%s", issues)
                     raise
@@ -233,4 +230,12 @@ class OpenAIWritingProvider:
             input_tokens=input_tokens,
             output_tokens=output_tokens,
             estimated_cost=self._estimated_cost(input_tokens, output_tokens, cached_tokens),
+            weakness_signals=tuple(
+                item.model_dump(mode="json") for item in parsed.weakness_signals
+            ),
+            next_objective=parsed.next_objective.model_dump(mode="json"),
+            previous_objective_assessment=parsed.previous_objective_assessment.model_dump(
+                mode="json"
+            ),
+            evaluator_prompt_version=EVALUATOR_PROMPT_VERSION,
         )

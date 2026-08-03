@@ -10,6 +10,7 @@ os.environ["APP_ENV"] = "test"
 os.environ["DATABASE_URL"] = "sqlite+aiosqlite://"
 os.environ["JWT_SECRET_KEY"] = "test-secret-key-that-is-long-enough-for-tests"
 os.environ["ROOT_PATH"] = ""
+os.environ["OPENAI_API_KEY"] = ""
 
 from app import models  # noqa: E402, F401
 from app.database.base import Base  # noqa: E402

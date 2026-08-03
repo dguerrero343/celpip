@@ -11,8 +11,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.ai_student_context import AIStudentContext
-from app.models.enums import Difficulty, WritingTaskStatus, WritingTaskType
+from app.models.enums import Difficulty, WritingAttemptType, WritingTaskStatus, WritingTaskType
 from app.models.user import User
+from app.models.writing_attempt import WritingAttempt
 from app.models.writing_evaluation import WritingEvaluation
 from app.models.writing_submission import WritingSubmission
 from app.models.writing_task import WritingTask
@@ -39,6 +40,17 @@ class WritingProgress:
     evaluated_submissions: int
     current_score: float | None
     target_score: float | None
+    average_score: float | None
+    best_score: float | None
+    last_evaluated_at: datetime | None
+    test_simulation: "WritingProgressSummary"
+    guided_practice: "WritingProgressSummary"
+
+
+@dataclass(frozen=True, slots=True)
+class WritingProgressSummary:
+    total_submissions: int
+    evaluated_submissions: int
     average_score: float | None
     best_score: float | None
     last_evaluated_at: datetime | None
@@ -86,9 +98,7 @@ def _selection_score(
 ) -> float:
     normalized_weaknesses = " ".join(weaknesses).lower().replace("_", " ")
     matched_tags = sum(
-        1
-        for tag in task.focus_tags
-        if tag.lower().replace("_", " ") in normalized_weaknesses
+        1 for tag in task.focus_tags if tag.lower().replace("_", " ") in normalized_weaknesses
     )
     score = matched_tags * 45
     if target_score is not None and task.target_score_min <= target_score <= task.target_score_max:
@@ -132,9 +142,7 @@ async def assign_next_writing_task(
         context = await session.get(AIStudentContext, user.id)
         weaknesses = tuple(context.main_weaknesses) if context is not None else ()
         target_score = (
-            int(context.target_score)
-            if context is not None
-            else user.target_celpip_score
+            int(context.target_score) if context is not None else user.target_celpip_score
         )
         task = max(
             candidates,
@@ -217,6 +225,7 @@ def _submission_query(user_id: uuid.UUID):
         .options(
             selectinload(WritingSubmission.task),
             selectinload(WritingSubmission.evaluation),
+            selectinload(WritingSubmission.attempt),
         )
     )
 
@@ -248,6 +257,41 @@ async def list_writing_submissions(
 
 
 async def get_writing_progress(session: AsyncSession, user: User) -> WritingProgress:
+    async def summary(attempt_type: WritingAttemptType) -> WritingProgressSummary:
+        type_filter = (
+            WritingAttempt.attempt_type == WritingAttemptType.GUIDED_PRACTICE
+            if attempt_type == WritingAttemptType.GUIDED_PRACTICE
+            else (
+                WritingAttempt.id.is_(None)
+                | (WritingAttempt.attempt_type == WritingAttemptType.TEST_SIMULATION)
+            )
+        )
+        row = (
+            await session.execute(
+                select(
+                    func.count(WritingSubmission.id),
+                    func.count(WritingEvaluation.id),
+                    func.avg(WritingEvaluation.estimated_score),
+                    func.max(WritingEvaluation.estimated_score),
+                    func.max(WritingEvaluation.created_at),
+                )
+                .outerjoin(
+                    WritingEvaluation, WritingEvaluation.submission_id == WritingSubmission.id
+                )
+                .outerjoin(WritingAttempt, WritingAttempt.submission_id == WritingSubmission.id)
+                .where(WritingSubmission.user_id == user.id, type_filter)
+            )
+        ).one()
+        return WritingProgressSummary(
+            int(row[0] or 0),
+            int(row[1] or 0),
+            float(row[2]) if row[2] is not None else None,
+            float(row[3]) if row[3] is not None else None,
+            row[4],
+        )
+
+    test_summary = await summary(WritingAttemptType.TEST_SIMULATION)
+    guided_summary = await summary(WritingAttemptType.GUIDED_PRACTICE)
     row = (
         await session.execute(
             select(
@@ -273,4 +317,6 @@ async def get_writing_progress(session: AsyncSession, user: User) -> WritingProg
         average_score=float(row[2]) if row[2] is not None else None,
         best_score=float(row[3]) if row[3] is not None else None,
         last_evaluated_at=row[4],
+        test_simulation=test_summary,
+        guided_practice=guided_summary,
     )

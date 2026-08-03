@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 
 from app.models.enums import (
     Difficulty,
+    WritingAttemptType,
     WritingTaskSource,
     WritingTaskStatus,
     WritingTaskType,
@@ -35,9 +36,7 @@ class AdminTaskCreate(BaseModel):
     @classmethod
     def normalize_tags(cls, value: list[str]) -> list[str]:
         return list(
-            dict.fromkeys(
-                item.strip().upper().replace(" ", "_") for item in value if item.strip()
-            )
+            dict.fromkeys(item.strip().upper().replace(" ", "_") for item in value if item.strip())
         )
 
     @model_validator(mode="after")
@@ -106,3 +105,17 @@ class AdminQuestionBankSummary(BaseModel):
     total_assignments: int
     total_submissions: int
     unique_students: int
+
+
+class EvaluationConsistencyMetricResponse(BaseModel):
+    prompt_version: str
+    attempt_type: WritingAttemptType
+    evaluation_count: int
+    average_score: float
+    score_standard_deviation: float
+    average_change_from_prior: float | None
+
+
+class EvaluationConsistencyResponse(BaseModel):
+    metrics: list[EvaluationConsistencyMetricResponse]
+    guidance: str

@@ -79,4 +79,3 @@ async def get_local_usage_report(
         by_model=dict(by_model),
         by_user=dict(by_user),
     )
-

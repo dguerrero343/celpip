@@ -29,5 +29,31 @@ class WritingTaskSource(StrEnum):
     AI = "AI"
 
 
+class WritingAttemptType(StrEnum):
+    GUIDED_PRACTICE = "GUIDED_PRACTICE"
+    TEST_SIMULATION = "TEST_SIMULATION"
+
+
+class WritingAttemptStatus(StrEnum):
+    PREPARING = "PREPARING"
+    WRITING = "WRITING"
+    SUBMITTED = "SUBMITTED"
+    EXPIRED = "EXPIRED"
+
+
+class WeaknessTrend(StrEnum):
+    NEW = "NEW"
+    IMPROVED = "IMPROVED"
+    STABLE = "STABLE"
+    WORSENED = "WORSENED"
+
+
+class LearningObjectiveStatus(StrEnum):
+    PENDING = "PENDING"
+    ACHIEVED = "ACHIEVED"
+    PARTIALLY_ACHIEVED = "PARTIALLY_ACHIEVED"
+    NOT_ACHIEVED = "NOT_ACHIEVED"
+
+
 class Skill(StrEnum):
     WRITING = "WRITING"

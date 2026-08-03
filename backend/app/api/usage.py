@@ -1,5 +1,5 @@
 import logging
-from datetime import date, timedelta
+from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from typing import Annotated
 
@@ -46,7 +46,7 @@ async def usage_report(
     start_date: Annotated[date | None, Query()] = None,
     end_date: Annotated[date | None, Query()] = None,
 ) -> UsageReportResponse:
-    resolved_end = end_date or date.today()
+    resolved_end = end_date or datetime.now(UTC).date()
     resolved_start = start_date or (resolved_end - timedelta(days=29))
     if resolved_start > resolved_end:
         raise HTTPException(
@@ -71,8 +71,7 @@ async def usage_report(
         provider = ProviderCostComparison(
             status="personal_scope",
             note=(
-                "OpenAI billed costs are organization-wide and are visible only to "
-                "administrators."
+                "OpenAI billed costs are organization-wide and are visible only to administrators."
             ),
         )
     elif costs_provider is None:
