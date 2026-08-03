@@ -81,6 +81,14 @@ services:
     restart: unless-stopped
     ports:
       - "${HTTP_PORT:-80}:80"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.celpip.rule=Host(`celpip.danielguerrero.ca`)"
+      - "traefik.http.routers.celpip.entrypoints=websecure"
+      - "traefik.http.routers.celpip.tls=true"
+      - "traefik.http.routers.celpip.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.celpip.service=celpip-service"
+      - "traefik.http.services.celpip-service.loadbalancer.server.port=80"
     depends_on:
       frontend:
         condition: service_healthy
