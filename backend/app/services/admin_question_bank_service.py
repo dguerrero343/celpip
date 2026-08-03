@@ -11,6 +11,7 @@ from app.models.writing_submission import WritingSubmission
 from app.models.writing_task import WritingTask
 from app.models.writing_task_assignment import WritingTaskAssignment
 from app.schemas.admin import AdminQuestionBankSummary, AdminTaskCreate, AdminTaskUpdate
+from app.services.task_quality_service import task_style_issues
 
 
 class AdminTaskNotFoundError(Exception):
@@ -36,18 +37,7 @@ class AdminTaskRecord:
 
 
 def style_issues(task_type: WritingTaskType, prompt: str) -> list[str]:
-    lowered = prompt.lower().replace("â€“", "–")
-    issues: list[str] = []
-    if "150–200" not in lowered and "150-200" not in lowered:
-        issues.append("Include the 150–200 word instruction.")
-    if task_type == WritingTaskType.EMAIL:
-        if "email" not in lowered:
-            issues.append("Task 1 must explicitly ask the student to write an email.")
-        if sum(lowered.count(term) for term in ("explain", "describe", "suggest", "propose")) < 2:
-            issues.append("Task 1 should contain about three clear points to address.")
-    elif not all(term in lowered for term in ("choose", "option")):
-        issues.append("Task 2 must present a survey choice between options.")
-    return issues
+    return task_style_issues(task_type, prompt)
 
 
 async def _ensure_unique_prompt(

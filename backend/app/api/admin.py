@@ -1,3 +1,4 @@
+import logging
 import uuid
 from typing import Annotated
 
@@ -54,6 +55,7 @@ from app.services.admin_user_report_service import (
 )
 from app.services.learning_profile_service import build_consistency_metrics
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/admin", tags=["administration"])
 
 
@@ -322,4 +324,11 @@ async def generate_questions(
         ) from None
     except Exception as exc:
         await session.rollback()
-        raise HTTPException(status_code=502, detail="AI draft generation failed") from exc
+        logger.exception("AI draft generation failed")
+        raise HTTPException(
+            status_code=502,
+            detail=(
+                "AI returned drafts that did not meet the CELPIP quality checks. "
+                "Please try again."
+            ),
+        ) from exc
