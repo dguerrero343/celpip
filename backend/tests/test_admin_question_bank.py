@@ -53,9 +53,12 @@ def _valid_task() -> dict[str, object]:
         "target_score_min": 5,
         "target_score_max": 12,
         "prompt": (
-            "Your community centre has reduced its evening hours. Write an email to the "
-            "centre manager. Describe how you use the centre, explain how the new hours "
-            "affect residents, and suggest a practical schedule. Write 150–200 words."
+            "You regularly attend evening programs at a community centre that has recently "
+            "reduced its operating hours.\nWrite an email to the centre manager to request a "
+            "review of the new schedule.\nUse a respectful tone.\nIn your email, address all "
+            "three points below:\n• Describe how you use the centre.\n• Explain how the "
+            "reduced hours affect you.\n• Suggest a practical change to the schedule.\nWrite "
+            "approximately 150–200 words."
         ),
     }
 
