@@ -6,9 +6,11 @@ from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, Integer, Te
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base, UUIDPrimaryKeyMixin
+from app.models.enums import WritingAttemptType
 
 if TYPE_CHECKING:
     from app.models.user import User
+    from app.models.writing_attempt import WritingAttempt
     from app.models.writing_evaluation import WritingEvaluation
     from app.models.writing_task import WritingTask
 
@@ -37,3 +39,12 @@ class WritingSubmission(UUIDPrimaryKeyMixin, Base):
     evaluation: Mapped["WritingEvaluation | None"] = relationship(
         back_populates="submission", cascade="all, delete-orphan", passive_deletes=True
     )
+    attempt: Mapped["WritingAttempt | None"] = relationship(back_populates="submission")
+
+    @property
+    def attempt_type(self) -> WritingAttemptType:
+        return (
+            self.attempt.attempt_type
+            if self.attempt is not None
+            else WritingAttemptType.TEST_SIMULATION
+        )

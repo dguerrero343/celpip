@@ -44,4 +44,3 @@ class UsageReportResponse(BaseModel):
     by_model: list[UsageModelItem]
     by_user: list[UsageUserItem]
     provider: ProviderCostComparison
-

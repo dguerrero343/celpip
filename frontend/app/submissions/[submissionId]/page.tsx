@@ -17,6 +17,9 @@ type Evaluation = {
   weaknesses: string[];
   corrections: Array<{ original: string; revised: string; explanation?: string }>;
   recommended_exercises: string[];
+  next_objective: { skill: string; objective: string; success_criteria: string };
+  previous_objective_assessment: { status: string; explanation: string };
+  evaluator_prompt_version: string;
 };
 
 type Submission = {
@@ -114,6 +117,10 @@ export default function SubmissionFeedbackPage() {
             <article className="panel result-feedback"><p className="feedback-label success">What worked</p><ul>{evaluation.strengths.map((item) => <li key={item}>{item}</li>)}</ul></article>
             <article className="panel result-feedback"><p className="feedback-label improve">Improve next</p><ul>{evaluation.weaknesses.map((item) => <li key={item}>{item}</li>)}</ul></article>
           </section>
+          {evaluation.next_objective?.objective && <section className="learning-objective panel">
+            <div><p className="eyebrow">ONE GOAL FOR YOUR NEXT ATTEMPT</p><h2>{evaluation.next_objective.objective}</h2><p>{evaluation.next_objective.success_criteria}</p></div>
+            {evaluation.previous_objective_assessment?.status && evaluation.previous_objective_assessment.status !== "NOT_APPLICABLE" && <aside><strong>{evaluation.previous_objective_assessment.status.replaceAll("_", " ")}</strong><span>{evaluation.previous_objective_assessment.explanation}</span></aside>}
+          </section>}
           <section className="result-detail-grid">
             <article className="panel result-corrections"><p className="eyebrow">SUGGESTED CORRECTIONS</p><h2>Make the language stronger</h2>{evaluation.corrections.map((item, index) => <div key={`${item.original}-${index}`}><del>{item.original}</del><p>{item.revised}</p>{item.explanation && <small>{item.explanation}</small>}</div>)}</article>
             <article className="panel result-next"><p className="eyebrow">NEXT PRACTICE</p><h2>Recommended exercises</h2><ol>{evaluation.recommended_exercises.map((item) => <li key={item}>{item}</li>)}</ol></article>
@@ -131,4 +138,3 @@ export default function SubmissionFeedbackPage() {
     </main>
   );
 }
-

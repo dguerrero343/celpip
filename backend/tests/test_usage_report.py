@@ -107,4 +107,3 @@ async def test_admin_usage_report_compares_openai_billed_costs(
 
 def test_usage_report_requires_authentication(client: TestClient) -> None:
     assert client.get("/usage/report").status_code == 401
-

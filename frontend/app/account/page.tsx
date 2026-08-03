@@ -29,7 +29,10 @@ type Submission = {
   word_count: number;
   submitted_at: string;
   evaluation: { estimated_score: number } | null;
+  attempt_type: "GUIDED_PRACTICE" | "TEST_SIMULATION";
 };
+
+type ProgressSummary = { total_submissions: number; evaluated_submissions: number; average_score: number | null; best_score: number | null };
 
 type Progress = {
   total_submissions: number;
@@ -38,6 +41,8 @@ type Progress = {
   target_score: number | null;
   average_score: number | null;
   best_score: number | null;
+  test_simulation: ProgressSummary;
+  guided_practice: ProgressSummary;
 };
 
 type AccountData = {
@@ -133,6 +138,11 @@ export default function AccountPage() {
           <article className="account-metric panel"><span>Best score</span><strong>{data.progress.best_score ?? "—"}</strong><small>{data.progress.average_score ? `${data.progress.average_score} average` : "Start practising"}</small></article>
         </section>
 
+        <section className="mode-progress" aria-label="Progress by practice mode">
+          <article className="panel"><span>Test Simulation</span><strong>{data.progress.test_simulation.average_score ?? "—"}</strong><small>{data.progress.test_simulation.total_submissions} attempts · average score</small></article>
+          <article className="panel"><span>Guided Practice</span><strong>{data.progress.guided_practice.average_score ?? "—"}</strong><small>{data.progress.guided_practice.total_submissions} attempts · average score</small></article>
+        </section>
+
         {data.user.role === "ADMIN" && <Link className="admin-account-callout panel" href="/admin">
           <div><p className="eyebrow">ADMINISTRATION</p><h2>Manage the question bank</h2><p>Create and review exercises, approve publication, monitor unseen inventory, generate AI drafts, and see organization token usage.</p></div>
           <strong>Open admin site →</strong>
@@ -172,7 +182,7 @@ export default function AccountPage() {
             <div className="account-history panel">
               {data.submissions.map((submission) => (
                 <article key={submission.id}>
-                  <div><span>{submission.task.task_type}</span><strong>{submission.task.category}</strong><small>{new Date(submission.submitted_at).toLocaleDateString("en-CA")} · {submission.word_count} words</small></div>
+                  <div><span>{submission.attempt_type === "GUIDED_PRACTICE" ? "GUIDED PRACTICE" : "TEST SIMULATION"}</span><strong>{submission.task.category}</strong><small>{new Date(submission.submitted_at).toLocaleDateString("en-CA")} · {submission.word_count} words</small></div>
                   <Link className={`history-action${submission.evaluation ? " complete" : ""}`} href={`/submissions/${submission.id}`}>{submission.evaluation ? `${submission.evaluation.estimated_score} / 12 · Review` : "Generate feedback →"}</Link>
                 </article>
               ))}

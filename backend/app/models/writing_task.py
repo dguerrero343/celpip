@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     JSON,
+    Boolean,
     CheckConstraint,
     DateTime,
     Enum,
@@ -25,6 +26,7 @@ from app.models.enums import (
 )
 
 if TYPE_CHECKING:
+    from app.models.writing_attempt import WritingAttempt
     from app.models.writing_submission import WritingSubmission
     from app.models.writing_task_assignment import WritingTaskAssignment
 
@@ -80,10 +82,20 @@ class WritingTask(UUIDPrimaryKeyMixin, CreatedAtMixin, Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
     )
+    help_content_json: Mapped[dict | None] = mapped_column(JSON_DOCUMENT)
+    help_content_version: Mapped[str | None] = mapped_column(String(40))
+    help_content_model: Mapped[str | None] = mapped_column(String(100))
+    help_content_generated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    help_content_is_fixture: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default="false", nullable=False
+    )
 
     submissions: Mapped[list["WritingSubmission"]] = relationship(
         back_populates="task", passive_deletes="all"
     )
     assignments: Mapped[list["WritingTaskAssignment"]] = relationship(
+        back_populates="task", passive_deletes="all"
+    )
+    attempts: Mapped[list["WritingAttempt"]] = relationship(
         back_populates="task", passive_deletes="all"
     )

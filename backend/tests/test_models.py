@@ -13,6 +13,9 @@ def test_requested_tables_are_registered() -> None:
         "user_score_history",
         "ai_usage",
         "writing_task_assignments",
+        "writing_attempts",
+        "writing_weakness_observations",
+        "writing_learning_objectives",
     }
     assert expected == set(Base.metadata.tables)
 
@@ -42,6 +45,11 @@ def test_constraint_names_follow_the_metadata_convention() -> None:
             "ck_ai_usage_nonnegative_estimated_cost",
         },
         "writing_tasks": {"ck_writing_tasks_target_score_range"},
+        "writing_attempts": {
+            "ck_writing_attempts_nonnegative_word_count",
+            "ck_writing_attempts_nonnegative_help_panel_open_count",
+            "ck_writing_attempts_nonnegative_help_visible_seconds",
+        },
     }
 
     for table_name, names in expected.items():
@@ -65,6 +73,15 @@ def test_foreign_key_delete_policies_protect_and_remove_owned_data() -> None:
         ("writing_task_assignments", "user_id"): "CASCADE",
         ("writing_task_assignments", "task_id"): "RESTRICT",
         ("writing_tasks", "reviewed_by"): "SET NULL",
+        ("writing_attempts", "user_id"): "CASCADE",
+        ("writing_attempts", "task_id"): "RESTRICT",
+        ("writing_attempts", "assignment_id"): "SET NULL",
+        ("writing_attempts", "submission_id"): "SET NULL",
+        ("writing_weakness_observations", "user_id"): "CASCADE",
+        ("writing_weakness_observations", "submission_id"): "CASCADE",
+        ("writing_learning_objectives", "user_id"): "CASCADE",
+        ("writing_learning_objectives", "source_submission_id"): "CASCADE",
+        ("writing_learning_objectives", "assessed_submission_id"): "SET NULL",
     }
 
     actual: dict[tuple[str, str], str | None] = {}
@@ -83,6 +100,11 @@ def test_query_oriented_composite_indexes_are_registered() -> None:
         "ix_user_score_history_user_date": ("user_id", "date"),
         "ix_ai_usage_user_created": ("user_id", "created_at"),
         "ix_writing_task_assignments_user_assigned": ("user_id", "assigned_at"),
+        "ix_writing_attempts_user_status": ("user_id", "status"),
+        "ix_writing_attempts_user_created": ("user_id", "created_at"),
+        "uq_writing_attempts_one_active_per_user": ("user_id",),
+        "ix_weakness_observations_user_created": ("user_id", "created_at"),
+        "ix_weakness_observations_user_key": ("user_id", "weakness_key"),
     }
     actual: dict[str, tuple[str, ...]] = {}
 

@@ -7,7 +7,7 @@ from sqlalchemy import CheckConstraint, Date, Enum, ForeignKey, Index, Numeric
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base, UUIDPrimaryKeyMixin
-from app.models.enums import Skill
+from app.models.enums import Skill, WritingAttemptType
 
 if TYPE_CHECKING:
     from app.models.user import User
@@ -26,5 +26,11 @@ class UserScoreHistory(UUIDPrimaryKeyMixin, Base):
     skill: Mapped[Skill] = mapped_column(Enum(Skill, name="celpip_skill"), nullable=False)
     score: Mapped[Decimal] = mapped_column(Numeric(3, 1), nullable=False)
     date: Mapped[date] = mapped_column(Date, nullable=False)
+    attempt_type: Mapped[WritingAttemptType] = mapped_column(
+        Enum(WritingAttemptType, name="writing_attempt_type", create_type=False),
+        default=WritingAttemptType.TEST_SIMULATION,
+        server_default=WritingAttemptType.TEST_SIMULATION.value,
+        nullable=False,
+    )
 
     user: Mapped["User"] = relationship(back_populates="score_history")

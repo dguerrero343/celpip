@@ -9,15 +9,14 @@ from app.database.base import Base, UUIDPrimaryKeyMixin
 
 if TYPE_CHECKING:
     from app.models.user import User
+    from app.models.writing_attempt import WritingAttempt
     from app.models.writing_task import WritingTask
 
 
 class WritingTaskAssignment(UUIDPrimaryKeyMixin, Base):
     __tablename__ = "writing_task_assignments"
     __table_args__ = (
-        UniqueConstraint(
-            "user_id", "family_id", name="uq_writing_task_assignments_user_family"
-        ),
+        UniqueConstraint("user_id", "family_id", name="uq_writing_task_assignments_user_family"),
         Index("ix_writing_task_assignments_user_assigned", "user_id", "assigned_at"),
     )
 
@@ -35,3 +34,4 @@ class WritingTaskAssignment(UUIDPrimaryKeyMixin, Base):
 
     user: Mapped["User"] = relationship(back_populates="task_assignments")
     task: Mapped["WritingTask"] = relationship(back_populates="assignments")
+    attempts: Mapped[list["WritingAttempt"]] = relationship(back_populates="assignment")

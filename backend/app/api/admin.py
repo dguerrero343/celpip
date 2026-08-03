@@ -7,7 +7,16 @@ from sqlalchemy import select
 from app.ai.question_generator import QuestionGeneratorDependency
 from app.api.dependencies import AdminUser, DatabaseSession
 from app.models.ai_usage import AIUsage
-from app.models.enums import Difficulty, WritingTaskSource, WritingTaskStatus, WritingTaskType
+from app.models.enums import (
+    Difficulty,
+    WritingAttemptType,
+    WritingTaskSource,
+    WritingTaskStatus,
+    WritingTaskType,
+)
+from app.models.writing_attempt import WritingAttempt
+from app.models.writing_evaluation import WritingEvaluation
+from app.models.writing_submission import WritingSubmission
 from app.models.writing_task import WritingTask
 from app.schemas.admin import (
     AdminGenerateTasksRequest,
@@ -18,6 +27,8 @@ from app.schemas.admin import (
     AdminTaskResponse,
     AdminTaskStatusUpdate,
     AdminTaskUpdate,
+    EvaluationConsistencyMetricResponse,
+    EvaluationConsistencyResponse,
 )
 from app.services.admin_question_bank_service import (
     AdminTaskNotFoundError,
@@ -31,8 +42,54 @@ from app.services.admin_question_bank_service import (
     list_admin_tasks,
     update_admin_task,
 )
+from app.services.learning_profile_service import build_consistency_metrics
 
 router = APIRouter(prefix="/admin", tags=["administration"])
+
+
+@router.get("/evaluation-consistency", response_model=EvaluationConsistencyResponse)
+async def evaluation_consistency(
+    session: DatabaseSession, admin: AdminUser
+) -> EvaluationConsistencyResponse:
+    del admin
+    result = await session.execute(
+        select(
+            WritingEvaluation.evaluator_prompt_version,
+            WritingAttempt.attempt_type,
+            WritingSubmission.user_id,
+            WritingEvaluation.created_at,
+            WritingEvaluation.estimated_score,
+        )
+        .join(WritingSubmission, WritingSubmission.id == WritingEvaluation.submission_id)
+        .outerjoin(WritingAttempt, WritingAttempt.submission_id == WritingSubmission.id)
+    )
+    rows = [
+        (
+            version,
+            attempt_type or WritingAttemptType.TEST_SIMULATION,
+            user_id,
+            created_at,
+            score,
+        )
+        for version, attempt_type, user_id, created_at, score in result.all()
+    ]
+    return EvaluationConsistencyResponse(
+        metrics=[
+            EvaluationConsistencyMetricResponse(
+                prompt_version=item.prompt_version,
+                attempt_type=item.attempt_type,
+                evaluation_count=item.evaluation_count,
+                average_score=item.average_score,
+                score_standard_deviation=item.score_standard_deviation,
+                average_change_from_prior=item.average_change_from_prior,
+            )
+            for item in build_consistency_metrics(rows)
+        ],
+        guidance=(
+            "Compare prompt versions on representative submissions before promotion. "
+            "Score spread measures stability, not scoring accuracy."
+        ),
+    )
 
 
 def _response(record: AdminTaskRecord) -> AdminTaskResponse:

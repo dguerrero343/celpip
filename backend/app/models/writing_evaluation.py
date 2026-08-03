@@ -2,7 +2,7 @@ import uuid
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from sqlalchemy import JSON, CheckConstraint, ForeignKey, Numeric
+from sqlalchemy import JSON, CheckConstraint, ForeignKey, Numeric, String
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -37,6 +37,18 @@ class WritingEvaluation(UUIDPrimaryKeyMixin, CreatedAtMixin, Base):
     weaknesses: Mapped[list[str]] = mapped_column(JSON_DOCUMENT, nullable=False)
     corrections: Mapped[list[dict[str, str]]] = mapped_column(JSON_DOCUMENT, nullable=False)
     recommended_exercises: Mapped[list[str]] = mapped_column(JSON_DOCUMENT, nullable=False)
+    weakness_signals: Mapped[list[dict[str, str]]] = mapped_column(
+        JSON_DOCUMENT, default=list, nullable=False
+    )
+    next_objective: Mapped[dict[str, str]] = mapped_column(
+        JSON_DOCUMENT, default=dict, nullable=False
+    )
+    previous_objective_assessment: Mapped[dict[str, str]] = mapped_column(
+        JSON_DOCUMENT, default=dict, nullable=False
+    )
+    evaluator_prompt_version: Mapped[str] = mapped_column(
+        String(40), default="legacy", nullable=False
+    )
     ai_raw_response: Mapped[dict[str, object]] = mapped_column(JSON_DOCUMENT, nullable=False)
 
     submission: Mapped["WritingSubmission"] = relationship(back_populates="evaluation")
