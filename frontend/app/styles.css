@@ -316,6 +316,41 @@ blockquote { max-height: 142px; overflow: auto; margin: 22px 0; padding: 18px 20
 .admin-tags span { padding: 5px 7px; border-radius: 6px; background: #f0f4f1; color: #60746a; font-size: .58rem; font-weight: 800; }
 .admin-task-card footer { margin-top: auto; padding-top: 14px; display: flex; justify-content: space-between; gap: 14px; border-top: 1px solid #e5ebe7; color: #89958f; font-size: .68rem; }
 .admin-task-card footer button { padding: 0; border: 0; background: none; color: #21664d; font-weight: 850; cursor: pointer; }
+.admin-user-report { margin-top: 46px; }
+.admin-user-report .section-heading { align-items: end; gap: 24px; }
+.admin-user-report .section-heading p:last-child { max-width: 680px; margin: 8px 0 0; color: #687770; font-size: .78rem; line-height: 1.55; }
+.admin-user-search { min-width: 330px; display: grid; gap: 6px; }
+.admin-user-search label { color: #607169; font-size: .68rem; font-weight: 850; text-transform: uppercase; letter-spacing: .05em; }
+.admin-user-search div { display: flex; }
+.admin-user-search input { min-width: 0; height: 42px; flex: 1; padding: 0 12px; border: 1px solid #cbd7d0; border-radius: 8px 0 0 8px; background: white; color: #273e36; font: inherit; }
+.admin-user-search button { min-width: 82px; border: 0; border-radius: 0 8px 8px 0; background: #21664d; color: white; font-weight: 850; cursor: pointer; }
+.admin-user-table-wrap { margin-top: 16px; overflow-x: auto; }
+.admin-user-table { width: 100%; border-collapse: collapse; min-width: 1050px; }
+.admin-user-table th { padding: 13px 15px; border-bottom: 1px solid #dbe4df; color: #718079; font-size: .62rem; font-weight: 900; text-align: left; text-transform: uppercase; letter-spacing: .05em; }
+.admin-user-table td { padding: 16px 15px; border-bottom: 1px solid #e5ebe7; vertical-align: top; }
+.admin-user-table tbody tr:last-child td { border-bottom: 0; }
+.admin-user-table td strong, .admin-user-table td span, .admin-user-table td small { display: block; }
+.admin-user-table td strong { color: #29483d; font-size: .78rem; }
+.admin-user-table td span { margin-top: 5px; color: #74827b; font-size: .68rem; }
+.admin-user-table td small { margin-top: 5px; color: #939d98; font-size: .62rem; }
+.admin-user-table .admin-active-attempt { width: fit-content; padding: 4px 6px; border-radius: 5px; background: #fff0c7; color: #70591f; font-weight: 850; }
+.admin-user-pagination { padding: 13px 15px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border-top: 1px solid #dbe4df; color: #718079; font-size: .7rem; font-weight: 800; }
+.admin-user-pagination div { display: flex; gap: 7px; }
+.admin-user-pagination button { min-height: 34px; padding: 0 11px; border: 1px solid #cbd7d0; border-radius: 7px; background: white; color: #36594b; font-weight: 800; cursor: pointer; }
+.admin-user-pagination button:disabled { cursor: not-allowed; opacity: .45; }
+.admin-user-page .admin-user-report { margin-top: 0; }
+.admin-user-page .admin-user-report h1 { margin-top: 4px; font-size: clamp(2.2rem, 5vw, 4rem); }
+.admin-user-detail-link { display: inline-block; min-width: max-content; color: #21664d; font-size: .7rem; font-weight: 850; text-decoration: none; }
+.admin-user-detail-link:hover { text-decoration: underline; }
+.admin-user-profile-heading .button { border: 1px solid #cbd7d0; background: white; color: #2d5d4b; text-decoration: none; }
+.admin-detail-metrics { margin: 26px 0 46px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.admin-detail-metrics article { padding: 22px; display: grid; gap: 8px; }
+.admin-detail-metrics span { color: #718079; font-size: .68rem; font-weight: 850; text-transform: uppercase; letter-spacing: .04em; }
+.admin-detail-metrics strong { color: #216149; font-size: 1.8rem; }
+.admin-detail-metrics small { color: #839089; font-size: .68rem; }
+.admin-detail-section { margin-top: 42px; }
+.admin-detail-section .section-heading p:last-child { max-width: 660px; margin: 7px 0 0; color: #687770; font-size: .78rem; line-height: 1.55; }
+.admin-attempt-table, .admin-usage-breakdown-table { min-width: 980px; }
 
 /* Timed CELPIP Writing practice */
 .exam-intro { min-height: 100vh; padding-bottom: 50px; background: #eef3ef; }
@@ -490,6 +525,7 @@ blockquote { max-height: 142px; overflow: auto; margin: 22px 0; padding: 18px 20
   .usage-metrics { grid-template-columns: repeat(2, 1fr); }
   .usage-model-grid { grid-template-columns: repeat(2, 1fr); }
   .admin-metrics { grid-template-columns: repeat(2, 1fr); }
+  .admin-detail-metrics { grid-template-columns: repeat(2, 1fr); }
   .admin-workspace { grid-template-columns: 1fr; }
   .admin-side { grid-template-columns: repeat(2, 1fr); }
   .exam-body { grid-template-columns: 1fr; }
@@ -543,12 +579,25 @@ blockquote { max-height: 142px; overflow: auto; margin: 22px 0; padding: 18px 20
   .admin-content { width: min(100% - 24px, 1240px); margin-top: 24px; }
   .admin-heading { align-items: start; flex-direction: column; }
   .admin-heading .button { width: 100%; text-align: center; }
+  .admin-user-report .section-heading { align-items: stretch; }
+  .admin-user-search { width: 100%; min-width: 0; }
   .admin-metrics { grid-template-columns: 1fr; }
+  .admin-detail-metrics { grid-template-columns: 1fr; margin-bottom: 34px; }
+  .admin-user-profile-heading .button { width: 100%; text-align: center; }
   .admin-editor { padding: 20px 16px; }
   .admin-form-grid, .admin-side, .admin-task-list { grid-template-columns: 1fr; }
   .admin-filters { grid-template-columns: 1fr; }
   .admin-task-card > p { min-height: 0; }
   .admin-task-card footer { align-items: start; flex-direction: column; }
+  .admin-user-table-wrap { padding: 12px; overflow: visible; background: transparent; border: 0; box-shadow: none; }
+  .admin-user-table { min-width: 0; }
+  .admin-user-table thead { display: none; }
+  .admin-user-table, .admin-user-table tbody, .admin-user-table tr, .admin-user-table td { display: block; width: 100%; }
+  .admin-user-table tr { margin-bottom: 12px; padding: 8px 14px; border: 1px solid #dbe4df; border-radius: 12px; background: white; box-shadow: 0 8px 20px rgba(27, 61, 48, .04); }
+  .admin-user-table td { padding: 10px 0 10px 42%; border-bottom: 1px solid #edf1ee; position: relative; }
+  .admin-user-table td:last-child { border-bottom: 0; }
+  .admin-user-table td::before { content: attr(data-label); position: absolute; left: 0; top: 11px; width: 38%; color: #718079; font-size: .61rem; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; }
+  .admin-user-pagination { padding: 10px 2px; }
   .official-task-grid { grid-template-columns: 1fr; }
   .official-task { min-height: 270px; }
   .exam-header { min-height: 64px; padding: 0 16px; }

@@ -117,6 +117,8 @@ Evaluator instructions are fixed in code and stored with `evaluator_prompt_versi
 
 Set `ADMIN_EMAILS` to a JSON list of trusted account emails, then sign out and back in so the account receives an administrator session. Administrators can open `/admin` to create and edit exercises, move drafts through review, approve or retire prompts, inspect assignment inventory, generate optional AI drafts, and review the last 30 days of token and cost totals. AI-generated prompts always enter `DRAFT` status and cannot reach students until an administrator approves them.
 
+The dedicated `/admin/users` workspace provides a paginated per-user activity report. It separates Guided Practice and Test Simulation completions and average scores, and shows assigned exercises, started and active attempts, cumulative server-timed practice duration, last activity, AI request counts, tokens, and estimated cost. Administrators can drill into `/admin/users/{user_id}` to review up to 50 recent attempts and AI usage grouped by purpose and model. Practice duration is capped by each attempt's authoritative expiry time; legacy submissions without an attempt are classified as Test Simulation. The APIs are `GET /api/admin/users/summary` and `GET /api/admin/users/{user_id}`.
+
 Student practice now requests the next approved exercise from the backend. PostgreSQL records a task-family assignment before the introduction begins and prevents that family from ever being assigned to the same student again. When a student exhausts the approved inventory, the API reports that no unseen exercise is available instead of resetting their history.
 
 ```text

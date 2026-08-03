@@ -27,6 +27,11 @@ from app.schemas.admin import (
     AdminTaskResponse,
     AdminTaskStatusUpdate,
     AdminTaskUpdate,
+    AdminUserAttemptResponse,
+    AdminUserDetailResponse,
+    AdminUserSummaryListResponse,
+    AdminUserSummaryResponse,
+    AdminUserUsageBreakdownResponse,
     EvaluationConsistencyMetricResponse,
     EvaluationConsistencyResponse,
 )
@@ -42,9 +47,62 @@ from app.services.admin_question_bank_service import (
     list_admin_tasks,
     update_admin_task,
 )
+from app.services.admin_user_report_service import (
+    AdminUserNotFoundError,
+    get_admin_user_detail,
+    list_admin_user_summaries,
+)
 from app.services.learning_profile_service import build_consistency_metrics
 
 router = APIRouter(prefix="/admin", tags=["administration"])
+
+
+@router.get("/users/summary", response_model=AdminUserSummaryListResponse)
+async def user_summary(
+    session: DatabaseSession,
+    admin: AdminUser,
+    search: Annotated[str | None, Query(max_length=100)] = None,
+    limit: Annotated[int, Query(ge=1, le=100)] = 50,
+    offset: Annotated[int, Query(ge=0)] = 0,
+) -> AdminUserSummaryListResponse:
+    del admin
+    records, total = await list_admin_user_summaries(
+        session, search=search, limit=limit, offset=offset
+    )
+    return AdminUserSummaryListResponse(
+        items=[
+            AdminUserSummaryResponse.model_validate(record, from_attributes=True)
+            for record in records
+        ],
+        total=total,
+        limit=limit,
+        offset=offset,
+    )
+
+
+@router.get("/users/{user_id}", response_model=AdminUserDetailResponse)
+async def user_detail(
+    user_id: uuid.UUID,
+    session: DatabaseSession,
+    admin: AdminUser,
+) -> AdminUserDetailResponse:
+    del admin
+    try:
+        record = await get_admin_user_detail(session, user_id=user_id)
+    except AdminUserNotFoundError:
+        raise HTTPException(status_code=404, detail="User not found") from None
+
+    return AdminUserDetailResponse(
+        summary=AdminUserSummaryResponse.model_validate(record.summary, from_attributes=True),
+        recent_attempts=[
+            AdminUserAttemptResponse.model_validate(item, from_attributes=True)
+            for item in record.recent_attempts
+        ],
+        ai_usage_breakdown=[
+            AdminUserUsageBreakdownResponse.model_validate(item, from_attributes=True)
+            for item in record.ai_usage_breakdown
+        ],
+    )
 
 
 @router.get("/evaluation-consistency", response_model=EvaluationConsistencyResponse)
