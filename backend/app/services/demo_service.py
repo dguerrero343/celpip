@@ -57,6 +57,7 @@ async def get_demo_dashboard(session: AsyncSession) -> DemoDashboard:
                 .options(
                     selectinload(WritingSubmission.task),
                     selectinload(WritingSubmission.evaluation),
+                    selectinload(WritingSubmission.attempt),
                 )
                 .order_by(WritingSubmission.submitted_at.desc())
             )
