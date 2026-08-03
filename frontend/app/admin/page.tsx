@@ -276,7 +276,7 @@ export default function AdminPage() {
     <main className="admin-shell">
       <header className="topbar admin-topbar">
         <Brand />
-        <nav><Link href="/account">Student view</Link><Link href="/usage">Full usage report</Link></nav>
+        <nav><Link href="/admin/users">User reporting</Link><Link href="/account">Student view</Link><Link href="/usage">Full usage report</Link></nav>
       </header>
       <div className="admin-content">
         <section className="admin-heading">

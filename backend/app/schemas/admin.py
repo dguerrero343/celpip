@@ -5,6 +5,8 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 
 from app.models.enums import (
     Difficulty,
+    UserRole,
+    WritingAttemptStatus,
     WritingAttemptType,
     WritingTaskSource,
     WritingTaskStatus,
@@ -119,3 +121,65 @@ class EvaluationConsistencyMetricResponse(BaseModel):
 class EvaluationConsistencyResponse(BaseModel):
     metrics: list[EvaluationConsistencyMetricResponse]
     guidance: str
+
+
+class AdminUserSummaryResponse(BaseModel):
+    id: uuid.UUID
+    email: str
+    first_name: str
+    role: UserRole
+    current_score: int | None
+    target_score: int | None
+    registered_at: datetime
+    last_activity_at: datetime
+    assigned_exercises: int
+    attempts_started: int
+    active_attempts: int
+    exercises_completed: int
+    guided_practice_completed: int
+    test_simulation_completed: int
+    total_practice_seconds: int
+    average_test_score: float | None
+    average_guided_score: float | None
+    ai_request_count: int
+    input_tokens: int
+    output_tokens: int
+    total_tokens: int
+    estimated_cost_usd: float
+
+
+class AdminUserSummaryListResponse(BaseModel):
+    items: list[AdminUserSummaryResponse]
+    total: int
+    limit: int
+    offset: int
+
+
+class AdminUserAttemptResponse(BaseModel):
+    id: uuid.UUID
+    task_type: WritingTaskType
+    category: str
+    status: WritingAttemptStatus
+    attempt_type: WritingAttemptType
+    help_mode_enabled: bool
+    started_at: datetime
+    submitted_at: datetime | None
+    elapsed_seconds: int
+    word_count: int
+    estimated_score: float | None
+
+
+class AdminUserUsageBreakdownResponse(BaseModel):
+    request_type: str
+    model: str
+    request_count: int
+    input_tokens: int
+    output_tokens: int
+    total_tokens: int
+    estimated_cost_usd: float
+
+
+class AdminUserDetailResponse(BaseModel):
+    summary: AdminUserSummaryResponse
+    recent_attempts: list[AdminUserAttemptResponse]
+    ai_usage_breakdown: list[AdminUserUsageBreakdownResponse]
